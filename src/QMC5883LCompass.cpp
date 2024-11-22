@@ -68,6 +68,7 @@ QMC5883LCompass::QMC5883LCompass() {
 **/
 void QMC5883LCompass::init(){
 	Wire.begin();
+	_writeReg(0x0A,0x80); // AO added soft reset.
 	_writeReg(0x0B,0x01);
 	setMode(0x01,0x0C,0x10,0X00);
 }
@@ -237,6 +238,10 @@ void QMC5883LCompass::setCalibrationScales(float x_scale, float y_scale, float z
 	_scale[2] = z_scale;
 }
 
+void QMC5883LCompass::setTemperatureOffset(float temp_offset) {
+	_tempOffset = temp_offset;
+}
+
 float QMC5883LCompass::getCalibrationOffset(uint8_t index) {
 	return _offset[index];
 }
@@ -275,6 +280,31 @@ void QMC5883LCompass::read(){
 		//byte overflow = Wire.read() & 0x02;
 		//return overflow << 2;
 	}
+}
+
+
+/** 
+	READ TEMP
+	Read the temperature of the chip.
+	
+	@since v1.0.0 AO
+**/
+
+void QMC5883LCompass::readTemp(){
+	Wire.beginTransmission(_ADDR);
+	Wire.write(0x07);
+	Wire.endTransmission();
+	Wire.requestFrom(_ADDR, (byte)2);
+	_tempRaw = (int)(int16_t)(Wire.read() | Wire.read() << 8);
+}
+
+/**
+ * @brief getTemp
+ * 
+ */
+
+float QMC5883LCompass::getTemp(){
+	return  (float)_tempRaw / 100 + _tempOffset;
 }
 
 /**

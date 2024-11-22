@@ -18,14 +18,17 @@ class QMC5883LCompass{
 	void setCalibration(int x_min, int x_max, int y_min, int y_max, int z_min, int z_max);
 	void setCalibrationOffsets(float x_offset, float y_offset, float z_offset);
 	void setCalibrationScales(float x_scale, float y_scale, float z_scale);
+	void setTemperatureOffset(float temp_offset);
     float getCalibrationOffset(uint8_t index);
 	float getCalibrationScale(uint8_t index);
 	void clearCalibration();
 	void setReset();
     void read();
+	void readTemp();
 	int getX();
 	int getY();
 	int getZ();
+	float getTemp();
 	int getAzimuth();
 	byte getBearing(int azimuth);
 	void getDirection(char* myArray, int azimuth);
@@ -39,6 +42,8 @@ class QMC5883LCompass{
 	bool _smoothAdvanced = false;
     byte _ADDR = 0x0D;
 	int _vRaw[3] = {0,0,0};
+	int _tempRaw = 0;
+	float _tempOffset = 0;
 	int _vHistory[10][3];
 	int _vScan = 0;
 	long _vTotals[3] = {0,0,0};
